@@ -1,0 +1,30 @@
+
+
+body {
+    background-color: black;
+}
+.form-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.form-control {
+    padding: 8px 10px; /* Adjust padding for input fields */
+    font-size: 14px; /* Reduce font size */
+}
+.btn-primary {
+    padding: 10px 20px; /* Adjust padding for the button */
+    font-size: 14px; /* Reduce button font size */
+}
+fieldset {
+    border: none; /* Remove default fieldset border */
+    padding: 0;
+    margin-bottom: 15px;
+}
+legend {
+    font-size: 18px; /* Adjust legend font size */
+    margin-bottom: 15px;
+}

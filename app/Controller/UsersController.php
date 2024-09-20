@@ -56,8 +56,6 @@ public function logout() {
     return $this->redirect(array('controller' => 'users', 'action' => 'login'));
 }
 
-
-
 	public function index() {
 		$this->User->recursive = 0;
 		$this->set('users', $this->Paginator->paginate());

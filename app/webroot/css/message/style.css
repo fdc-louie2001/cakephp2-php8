@@ -1,0 +1,62 @@
+body {
+    background-color: #f8f9fa; /* Light background for contrast */
+    margin: 0; /* Remove default margin */
+    height: 100vh; /* Full viewport height */
+    display: flex; /* Use flexbox to center content */
+    flex-direction: column; /* Stack items vertically */
+}
+
+.container {
+    padding: 20px;
+    flex-grow: 1; /* Allow the container to grow and fill available space */
+    overflow: auto; /* Enable scrolling if content overflows */
+}
+
+.messages-container {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Align items to the center */
+    padding: 10px; /* Add padding for spacing */
+    background: white; /* Background color for message containers */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow */
+    margin-bottom: 10px; /* Space between messages */
+}
+
+.avatar {
+    border-radius: 50%; /* Circular avatar */
+    margin-right: 10px; /* Space between avatar and text */
+}
+
+.message-content {
+    flex-grow: 1; /* Allow it to take up remaining space */
+    min-width: 0; /* Ensure it respects the container's width */
+}
+
+.user-name {
+    font-weight: bold; /* Bold name */
+    margin-bottom: 5px; /* Space below name */
+}
+
+.user-conversation {
+    color: #555; /* Grey text for conversation */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+}
+
+.status-info {
+    display: inline;
+    margin-left: 10px; /* Space between conversation and status */
+    color: #999; /* Grey color for status */
+    font-size: 10px;
+}
+
+/* Make the inbox scrollable */
+.inbox {
+    margin-top: 10px;
+    max-height: 500px; /* Set a maximum height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 10px; /* Padding around the inbox */
+    background: rgb(240, 242, 245); /* Slightly darker background */
+    border-radius: 8px; /* Rounded corners */
+}

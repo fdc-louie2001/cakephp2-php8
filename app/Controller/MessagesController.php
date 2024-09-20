@@ -25,6 +25,12 @@ class MessagesController extends AppController {
         // // Paginate and set messages for the view
         // $this->Message->recursive = 0;
         // $this->set('messages', $this->Paginator->paginate());
+
+      
+    }
+
+    public function view() {
+        
     }
     
 }
