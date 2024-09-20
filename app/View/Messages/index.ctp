@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages Page</title>
-    
-    <?php echo $this->Html->css('message/style'); ?>
-</head>
-<body>
+
+<?php echo $this->Html->css('message/style'); ?>
 
 <!-- Navigation with Logout Button -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -111,6 +103,3 @@
         </div>
     </div>
 </div>
-    
-</body>
-</html>
