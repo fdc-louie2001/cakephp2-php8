@@ -25,6 +25,7 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 		<?php echo $cakeDescription ?>:
 		<?php echo $this->fetch('title'); ?>
 	</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
 	<?php
 		echo $this->Html->meta('icon');
 
@@ -36,28 +37,27 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 	?>
 </head>
 <body>
-	<div id="container">
-		<div id="header">
-			<h1><?php echo $this->Html->link($cakeDescription, 'https://cakephp.org'); ?></h1>
+		<div id="container">
+			
+			<div id="content">
+	
+				<?php echo $this->Flash->render(); ?>
+				<?php echo $this->fetch('content'); ?>
+			</div>
+			<div id="footer">
+				<?php echo $this->Html->link(
+						$this->Html->image('cake.power.gif', array('alt' => $cakeDescription, 'border' => '0')),
+						'https://cakephp.org/',
+						array('target' => '_blank', 'escape' => false, 'id' => 'cake-powered')
+					);
+				?>
+				<p>
+					<?php echo $cakeVersion; ?>
+				</p>
+			</div>
 		</div>
-		<div id="content">
-
-			<?php echo $this->Flash->render(); ?>
-
-			<?php echo $this->fetch('content'); ?>
-		</div>
-		<div id="footer">
-			<?php echo $this->Html->link(
-					$this->Html->image('cake.power.gif', array('alt' => $cakeDescription, 'border' => '0')),
-					'https://cakephp.org/',
-					array('target' => '_blank', 'escape' => false, 'id' => 'cake-powered')
-				);
-			?>
-			<p>
-				<?php echo $cakeVersion; ?>
-			</p>
-		</div>
-	</div>
-	<?php echo $this->element('sql_dump'); ?>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+		<?php echo $this->element('sql_dump'); ?>
 </body>
 </html>

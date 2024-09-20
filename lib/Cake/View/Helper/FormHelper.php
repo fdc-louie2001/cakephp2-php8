@@ -2767,7 +2767,7 @@ class FormHelper extends AppHelper {
 		}
 
 		if (is_numeric($value)) {
-			$value = PHP81_BC\strftime('%Y-%m-%d %H:%M:%S', $value);
+			$value = date('Y-m-d H:i:s', strtotime($value));
 		}
 		$meridian = 'am';
 		$pos = strpos($value, '-');
@@ -3022,7 +3022,7 @@ class FormHelper extends AppHelper {
 				} else {
 					for ($m = 1; $m <= 12; $m++) {
 						// @codingStandardsIgnoreStart
-						$data[sprintf("%02s", $m)] = PHP81_BC\strftime("%m", mktime(1, 1, 1, $m, 1, 1999));
+						$data[sprintf("%02s", $m)] = (new DateTime("1999-$m-01"))->format('m');
 						// @codingStandardsIgnoreEnd
 					}
 				}
