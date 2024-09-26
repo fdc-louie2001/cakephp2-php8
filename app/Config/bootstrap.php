@@ -109,3 +109,12 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+function dd()
+{
+    $args = func_get_args();
+    foreach ($args as $arg) {
+        debug($arg);
+    }
+    die();
+}

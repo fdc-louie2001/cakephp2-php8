@@ -41,6 +41,7 @@ class User extends AppModel {
             'required' => true,
             'allowEmpty' => false,
             'last' => false,
+			'on' => 'create'
         ),
         'minLength' => array(
             'rule' => array('minLength', 8),
@@ -59,18 +60,19 @@ class User extends AppModel {
             'required' => true,
             'allowEmpty' => false,
             'last' => false,
+			'on' => 'create'
         ),
     ),
-		'birthDate' => array(
-			'datetime' => array(
-				'rule' => array('datetime'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
+		// 'birthDate' => array(
+		// 	'datetime' => array(
+		// 		'rule' => array('datetime'),
+		// 		//'message' => 'Your custom message here',
+		// 		//'allowEmpty' => false,
+		// 		//'required' => false,
+		// 		//'last' => false, // Stop validation after this rule
+		// 		//'on' => 'create', // Limit validation to 'create' or 'update' operations
+		// 	),
+		// ),
 		'createdAt' => array(
 			'datetime' => array(
 				'rule' => array('datetime'),
@@ -78,7 +80,7 @@ class User extends AppModel {
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 		'lastLogin' => array(
@@ -95,8 +97,8 @@ class User extends AppModel {
 			'notBlank' => array(
 				'rule' => array('notBlank'),
 				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
+				'allowEmpty' => true,
+				'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
@@ -119,22 +121,33 @@ class User extends AppModel {
 	}
 
 	public function beforeSave($options = array()) {
-    // Set the current timestamp for 'createdAt' field if not already set
-    if (empty($this->data[$this->alias]['createdAt'])) {
-        $this->data[$this->alias]['createdAt'] = date('Y-m-d H:i:s');
-    }
+		// Set the current timestamp for 'createdAt' field if not already set
+		if (empty($this->data[$this->alias]['createdAt'])) {
+			$this->data[$this->alias]['createdAt'] = date('Y-m-d H:i:s');
+		}
 
-    // Set the current timestamp for 'lastLogin' field if not already set
-    if (isset($this->data[$this->alias]['lastLogin']) && empty($this->data[$this->alias]['lastLogin'])) {
-        $this->data[$this->alias]['lastLogin'] = date('Y-m-d H:i:s');
-    }
+		// Set the current timestamp for 'lastLogin' field if not already set
+		if (isset($this->data[$this->alias]['lastLogin']) && empty($this->data[$this->alias]['lastLogin'])) {
+			$this->data[$this->alias]['lastLogin'] = date('Y-m-d H:i:s');
+		}
 
-	if(isset($this->data['User']['password'])) {
-		$this->data['User']['password'] = AuthComponent::password($this->data['User']['password']);
+		if(isset($this->data['User']['password'])) {
+			$this->data['User']['password'] = AuthComponent::password($this->data['User']['password']);
+		}
+
+		return true;
 	}
 
-    return true;
-}
+	public $hasMany = [
+        'SentMessages' => [
+            'className' => 'Message',
+            'foreignKey' => 'senderId',
+        ],
+        'ReceivedMessages' => [
+            'className' => 'Message',
+            'foreignKey' => 'receiverId',
+        ]
+    ];
 
 	
 }

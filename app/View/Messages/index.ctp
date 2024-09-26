@@ -1,105 +1,57 @@
-
-<?php echo $this->Html->css('message/style'); ?>
+<?php echo $this->Html->css('message/inbox'); ?>
 
 <!-- Navigation with Logout Button -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Name</a>
-    <form class="form-inline my-2 my-lg-0 ml-auto">
-        <input class="form-control mr-sm-2" type="search" placeholder="Search messages" aria-label="Search">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-    <div class="logout-button ml-3">
-        <?php echo $this->Html->link(
-            __('Logout'), 
-            ['controller' => 'users', 'action' => 'logout'], 
-            ['class' => 'btn btn-danger']
-        ); ?>
-    </div>
-</nav>
+
 
 <!-- Main Content -->
-<div class="container inbox">
-    <div class="lead">
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Name of the user</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <!-- Repeat for more messages -->
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
-        <div class="messages-container">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="avatar">
-            <div class="message-content">
-                <div class="user-name">Another</div>
-                <div class="user-conversation">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Beatae, minima modi temporibus sint quisquam quos. Quo et corrupti, corporis aliquam, cupiditate laborum sit itaque harum reiciendis reprehenderit accusantium quam exsdgsdgsdgsd.</div>
-            </div>
-            <div class="status-info">12:30 PM</div>
-        </div>
+<div class="container inbox mt-3">
+    <div class="d-flex justify-content-between align-items-center py-2">
+        <h5 class="mb-0">Message History</h5>
+        <?php echo $this->Html->link(
+            'Create Message',
+            ['controller' => 'messages', 'action' => 'add'],
+            ['class' => 'btn btn-secondary']
+        ); ?>
+    </div>
+
+    <div class="list-group mt-3 pb-2">
+        <?php if (empty($uniqueSenders)) : ?>
+            <p>No Conversations</p>
+        <?php else : ?>
+            <?php foreach ($uniqueSenders as $sender) : ?>
+
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+
+                    <div class="d-flex align-items-center w-100"
+                        onclick="window.location='<?php echo $this->Html->url(['controller' => 'messages', 'action' => 'view', $sender['conversationId']]); ?>'">
+
+                        <?php echo $this->Html->image($sender['profilePic'], ['width' => '50', 'height' => '50', 'class' => 'avatar']); ?>
+                        <div class="ml-2">
+                            <h6 class="mb-1"><?php echo h($sender['name']); ?></h6>
+                            <p class="mb-0 text-muted message-preview">
+                                <?php echo h($sender['lastMessage']); // Display the last message body 
+                                ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <small class="text-muted">
+                            <?php echo h(date('h:i A', strtotime($sender['lastMessageTime'])));
+                            ?>
+                        </small>
+                        <?php echo $this->Form->postLink(
+                            __('Delete'),
+                            ['controller' => 'messages', 'action' => 'destroy', $sender['conversationId']],
+                            [
+                                'class' => 'btn btn-danger ml-2',
+                                'confirm' => 'Are you sure you want to delete this conversation?'
+                            ]
+                        ); ?>
+                    </div>
+                </div>
+
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>

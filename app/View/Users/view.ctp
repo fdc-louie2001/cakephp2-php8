@@ -16,11 +16,7 @@
 			<?php echo h($user['User']['email']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Password'); ?></dt>
-		<dd>
-			<?php echo h($user['User']['password']); ?>
-			&nbsp;
-		</dd>
+		
 		<dt><?php echo __('Gender'); ?></dt>
 		<dd>
 			<?php echo h($user['User']['gender']); ?>
@@ -29,16 +25,6 @@
 		<dt><?php echo __('BirthDate'); ?></dt>
 		<dd>
 			<?php echo h($user['User']['birthDate']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('CreatedAt'); ?></dt>
-		<dd>
-			<?php echo h($user['User']['createdAt']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('LastLogin'); ?></dt>
-		<dd>
-			<?php echo h($user['User']['lastLogin']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Hobby'); ?></dt>
@@ -51,9 +37,12 @@
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
-		<li><?php echo $this->Html->link(__('Edit User'), array('action' => 'edit', $user['User']['id'])); ?> </li>
+	<li><?php echo $this->Html->link(__('Home'), array('controller' => 'messages','action' => 'index')); ?> </li>
+		<?php if(AuthComponent::user('id') == $user['User']['id']): ?>
+			<li><?php echo $this->Html->link(__('Edit User'), array('action' => 'edit', $user['User']['id'])); ?> </li>
 		<li><?php echo $this->Form->postLink(__('Delete User'), array('action' => 'delete', $user['User']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $user['User']['id']))); ?> </li>
-		<li><?php echo $this->Html->link(__('List Users'), array('action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New User'), array('action' => 'add')); ?> </li>
+		<?php endif; ?>
+		<li><?php echo $this->Html->link(__('Logout'),  ['controller' => 'users', 'action' => 'logout']); ?> 
+		
 	</ul>
 </div>

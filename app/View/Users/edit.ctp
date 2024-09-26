@@ -1,26 +1,43 @@
+<style>
+.profile-pic {
+    width: 100px; /* Adjust the size as needed */
+    height: 100px; /* Ensure it's square */
+    border-radius: 50%; /* Makes the image circular */
+    border: 2px solid #ccc; /* Border color and size */
+    object-fit: cover; /* Ensures the image covers the area without stretching */
+}
+.btn {
+    margin-left: 6px;
+}
+</style>
 <div class="users form">
-    <?php echo $this->Form->create('User'); ?>
+    <?php echo $this->Form->create('User', ['type' => 'file']); ?>
     <fieldset>
         <legend><?php echo __('Edit User'); ?></legend>
         <?php
-            echo $this->Form->input('id');
+            // Check if the user has an existing profile picture
+            $profilePic = $this->request->data['User']['profilePic'];
+            
+
+            echo $this->Html->image($profilePic, ['alt' => 'Profile Picture', 'class' => 'profile-pic', 'id' => 'profilePicPreview']);
+            echo $this->Form->input('profilePic', ['type' => 'file', 'accept' => 'image/*', 'id' => 'profilePicInput']);
             echo $this->Form->input('name');
             echo $this->Form->input('email');
-            
-            // Change password field to a button
-            echo $this->Form->button(__('Change Password'), [
-                'class' => 'btn btn-secondary', 
-                'data-toggle' => 'modal', 
-                'data-target' => '#changePasswordModal'
+            echo $this->Form->input('gender');
+            echo $this->Form->button('Change Password', [
+                'type' => 'button', 
+                'class' => 'btn btn-danger', 
+                'id' => 'changePasswordBtn' // Added ID for the button
             ]);
-            
+
             // Gender input
             echo $this->Form->input('gender', [
                 'type' => 'radio', 
                 'options' => ['male' => 'Male', 'female' => 'Female'], 
-                'legend' => false // Hides the legend
+                'legend' => false,
+                'value' => ($this->request->data['User']['gender']) ? 'male' : null
             ]);
-            
+
             // Birthdate input
             echo $this->Form->input('birthDate', ['type' => 'text', 'id' => 'UserBirthDate']);
             echo $this->Form->input('hobby');
@@ -28,58 +45,109 @@
     </fieldset>
     <?php echo $this->Form->end(__('Submit')); ?>
 </div>
+
 <div class="actions">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
         <li><?php echo $this->Form->postLink(__('Delete'), ['action' => 'delete', $this->Form->value('User.id')], ['confirm' => __('Are you sure you want to delete # %s?', $this->Form->value('User.id'))]); ?></li>
-        <li><?php echo $this->Html->link(__('List Users'), ['action' => 'index']); ?></li>
+        <li><?php echo $this->Html->link(__('Logout'),  ['controller' => 'users', 'action' => 'logout']); ?> 
+        <!-- <li><?php echo $this->Html->link(__('List Users'), ['action' => 'index']); ?></li> -->
+        </li>
     </ul>
 </div>
 
-<!-- Modal for changing password -->
-<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="changePasswordModalLabel"><?php echo __('Change Password'); ?></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <?php echo $this->Form->create(null, ['url' => ['action' => 'changePassword', $this->Form->value('User.id')]]); ?>
-                <?php
-                    echo $this->Form->input('new_password', [
-                        'label' => 'New Password', 
-                        'type' => 'password', 
-                        'required' => true, 
-                        'class' => 'form-control'
-                    ]);
-                    echo $this->Form->input('confirm_password', [
-                        'label' => 'Confirm Password', 
-                        'type' => 'password', 
-                        'required' => true, 
-                        'class' => 'form-control'
-                    ]);
-                ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo __('Close'); ?></button>
-                <?php echo $this->Form->button(__('Save changes'), ['class' => 'btn btn-primary']); ?>
-                <?php echo $this->Form->end(); ?>
-            </div>
+<!-- Modal -->
+<div class="modal" tabindex="-1" role="dialog" id="changePasswordModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Change Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <input type="password" class="form-control" id="currentPassword" placeholder="Enter Current Password">
         </div>
+
+        <div class="form-group">
+            <input type="password" class="form-control" id="newPassword" placeholder="Enter New Password">
+        </div>
+        
+        <div class="form-group">
+            <input type="password" class="form-control" id="confirmNewPassword" placeholder="Confirm New Password">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
     </div>
+  </div>
 </div>
+
 
 <script>
     $(document).ready(function() {
+        $('#profilePicInput').on('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#profilePicPreview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Datepicker initialization
         $("#UserBirthDate").datepicker({
             dateFormat: "yy-mm-dd", 
             maxDate: 0,
-			changeMonth: true,
-			changeYear: true,
+            changeMonth: true,
+            changeYear: true,
+        });
 
+        // Show modal on Change Password button click
+        $('#changePasswordBtn').on('click', function() {
+            $('#changePasswordModal').modal('show');
+        });
+
+        // Save new password on Save Changes button click
+        $('#saveChangesBtn').on('click', function() {
+            const currentPassword = $('#currentPassword').val();
+            const newPassword = $('#newPassword').val();
+            const confirmNewPassword = $('#confirmNewPassword').val();
+
+            if (newPassword !== confirmNewPassword) {
+                alert('New password and confirm password do not match!');
+                return;
+            }
+
+            $.ajax({
+                url: '<?php echo $this->Html->url(['controller' => 'Users', 'action' => 'change_password']); ?>',
+                type: 'POST',
+                data: {
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                },
+                success: function(response) {
+                    // Ensure the response is parsed correctly
+                    response = JSON.parse(response); 
+                    if (response.status === 'success') {
+                        console.log(response); // Log the entire response
+                        alert('Password updated successfully!');
+                        $('#changePasswordModal').modal('hide');
+                      
+                    } else {
+                        console.log(response); 
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus, errorThrown); // Log any errors
+                }
+            });
         });
     });
 </script>

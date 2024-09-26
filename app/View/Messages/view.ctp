@@ -1,101 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversation</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa; /* Light background for contrast */
+<!-- View.ctp in Messages -->
+
+<!-- Main Content -->
+<div class="container-sm">
+    <p class="font-weight-bold text-uppercase">
+        <?php
+        // Check if messages are available and get the sender's name
+        if (!empty($messages)) {
+            if (AuthComponent::user('id') == $messages[0]['Sender']['id']) {
+                // Create a link for the receiver's name with the conversationId as a parameter
+                echo $this->Html->link(
+                    h($messages[0]['Receiver']['name']),
+                    ['controller' => 'Users', 'action' => 'view', $messages[0]['Receiver']['id']],
+                    ['escape' => false] // Set to false if you want to allow HTML characters in the name
+                );
+            } else {
+                // Display the sender's name of the first message as a link
+                echo $this->Html->link(
+                    h($messages[0]['Sender']['name']),
+                    ['controller' => 'Users', 'action' => 'view', $messages[0]['Sender']['id']],
+                    ['escape' => false] // Set to false if you want to allow HTML characters in the name
+                ); // Display the sender's name
+            }
         }
-        .container {
-            margin-top: 20px;
-            max-width: 600px; /* Limit the width of the chat */
-            border-radius: 10px;
-            overflow: hidden;
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .message {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex; /* Use flexbox for alignment */
-            align-items: flex-start; /* Align items to the top */
-        }
-        .message.sent {
-            background-color: #e1ffc7; /* Light green for sent messages */
-            align-self: flex-end; /* Align to the right */
-            justify-content: flex-end; /* Align to the right */
-        }
-        .message.received {
-            background-color: #f1f1f1; /* Light gray for received messages */
-            align-self: flex-start; /* Align to the left */
-        }
-        .avatar {
-            width: 40px; /* Avatar width */
-            height: 40px; /* Avatar height */
-            border-radius: 50%; /* Circular avatar */
-            margin-right: 10px; /* Space between avatar and text */
-        }
-        .message-time {
-            font-size: 0.75rem;
-            color: gray;
-            margin-top: 5px; /* Space above time */
-        }
-        .messages {
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto; /* Enable vertical scrolling */
-        }
-        .input-area {
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            display: flex; /* Use flexbox for input area */
-        }
-        .input-area input {
-            flex-grow: 1; /* Allow input to take up remaining space */
-            margin-right: 10px; /* Space between input and button */
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2 class="text-center">Conversation with [User Name]</h2>
-        <div class="messages d-flex flex-column">
-            <div class="message sent">
-                <div>
-                    <p>Hello!</p>
-                    <div class="message-time">12:01 PM</div>
-                </div>
-            </div>
-            <div class="message received">
-                <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar">
-                <div>
-                    <p>Hi there!</p>
-                    <div class="message-time">12:02 PM</div>
-                </div>
-            </div>
-            <div class="message sent">
-                <div>
-                    <p>How are you?</p>
-                    <div class="message-time">12:03 PM</div>
-                </div>
-            </div>
-            <div class="message received">
-                <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar">
-                <div>
-                    <p>I'm good, thanks!</p>
-                    <div class="message-time">12:04 PM</div>
-                </div>
-            </div>
-            <!-- Add more messages as needed -->
-        </div>
-        <div class="input-area">
-            <input type="text" class="form-control" placeholder="Type your message..." aria-label="Message">
-            <button class="btn btn-primary">Send</button>
-        </div>
+        ?>
+    </p>
+    <div class="mt-3 d-flex align-items-center">
+        <!-- Message Form -->
+        <?php echo $this->Form->create(null, ['id' => 'message-form', 'url' => ['controller' => 'messages', 'action' => 'replyMessage']]); ?>
+
+        <!-- Hidden field to pass user_id and conversationId -->
+        <?php echo $this->Form->hidden('user_id', ['value' => $messages[0]['Receiver']['id']]);  ?>
+        <?php echo $this->Form->hidden('conversationId', ['value' => $conversationId]); ?>
+
+        <!-- Message input field -->
+        <?php echo $this->Form->input('body', [
+            'type' => 'text',
+            'class' => '',
+            'placeholder' => 'Type your message here...',
+            'label' => false
+        ]); ?>
+
+        <!-- Submit button -->
+        <?php echo $this->Form->button(__('Send Message'), ['class' => 'btn btn-primary float-right']); ?>
+        <?php echo $this->Form->end(); ?>
     </div>
-</body>
-</html>
+
+    <div class="list-group container-sm inbox" id="messageList">
+        <?php echo $this->element('conversations', ['messages' => $messages]); ?>
+    </div>
+
+    <!-- Load More Button -->
+    <?php if ($hasMore): ?>
+        <button id="load-more" type="button" class="btn btn-primary mt-3">Load More</button>
+    <?php endif; ?>
+
+</div>
+
+<script>
+    $(document).ready(function() {
+        var currentPage = 1;
+
+        // Load more messages when the "Load More" button is clicked
+        $('#load-more').on('click', function() {
+            currentPage++;
+            $.ajax({
+                url: '<?php echo $this->Html->url(['action' => 'view', $conversationId]); ?>',
+                data: {
+                    page: currentPage
+                },
+                success: function(response) {
+                    console.log(response); // Log the response to see what is being returned
+                    $('#messageList').append(response);
+
+                    // If no more messages to load, hide the "Load More" button
+                    if (response.trim() === '') {
+                        $('#load-more').hide();
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while loading more messages.');
+                }
+            });
+        });
+
+        // Handle message form submission via AJAX
+        $('#message-form').on('submit', function(e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: data,
+                dataType: 'json',
+                success: function(response) {
+                    $('#message-form')[0].reset();
+                    if (response.success) {
+                        // Prepend the new message
+                        $('#messageList').prepend(response.html);
+                    } else {
+                        alert('Error: ' + response.errors.join(', '));
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while sending the message.');
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+<!-- Custom CSS -->
+<style>
+    .inbox {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 0 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .list-group-item {
+        border: none;
+        margin-bottom: 10px;
+        clear: both;
+    }
+
+    .message-left {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 50%;
+        float: left;
+    }
+
+    .message-right {
+        background-color: #007bff;
+        color: white;
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 50%;
+        float: right;
+    }
+
+    .list-group-item::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+</style>
