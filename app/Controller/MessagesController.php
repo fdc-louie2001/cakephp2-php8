@@ -42,24 +42,27 @@ class MessagesController extends AppController
 	}
 
 
-
-
-
 	public function index()
 	{
 		// Fetch the currently logged-in user's ID
 		$currentUserId = AuthComponent::user('id');
 
+		// Determine the offset and limit for the AJAX request
+		$offset = $this->request->query('offset') ?: 0; // Default to 0 if not set
+		$limit = 5; // Limit to 5 messages per request
+
 		// Fetch messages where the current user is the receiver or sender
 		$receivedMessages = $this->Message->find('all', [
 			'conditions' => [
 				'OR' => [
-					'Message.receiverId' => $currentUserId, // Fetch messages where the user is the receiver
-					'Message.senderId' => $currentUserId    // Fetch messages where the user is the sender
+					'Message.receiverId' => $currentUserId,
+					'Message.senderId' => $currentUserId
 				]
 			],
 			'contain' => ['Sender', 'Receiver', 'Conversation'],
-			'order' => ['Message.createdAt' => 'DESC'] // Order by the message creation date
+			'order' => ['Message.createdAt' => 'DESC'],
+			'limit' => $limit,
+			'offset' => $offset, // Use the offset for pagination
 		]);
 
 		// Group messages by conversationId
@@ -79,17 +82,14 @@ class MessagesController extends AppController
 					'profilePic' => null,
 				];
 			}
-
 			// Add the current message to the group's message array
 			$groupedMessages[$conversationId]['messages'][] = $message['Message'];
 
 			// Update the last message details if this message is more recent
-
 			if (
 				empty($groupedMessages[$conversationId]['lastMessageTime']) ||
 				strtotime($message['Message']['createdAt']) > ($groupedMessages[$conversationId]['lastMessageTime'])
 			) {
-
 				// Update last message details
 				$groupedMessages[$conversationId]['lastMessage'] = $message['Message']['body'];
 				$groupedMessages[$conversationId]['lastMessageTime'] = $message['Message']['createdAt'];
@@ -115,16 +115,38 @@ class MessagesController extends AppController
 			$uniqueSenders[] = [
 				'id' => $conversation['senderId'],
 				'name' => $conversation['senderName'],
-				'profilePic' => $conversation['profilePic'], // Keep the profile pic based on the sender/receiver
+				'profilePic' => $conversation['profilePic'],
 				'conversationId' => $conversation['conversationId'],
 				'lastMessage' => $conversation['lastMessage'],
 				'lastMessageTime' => $conversation['lastMessageTime'],
 			];
 		}
-
-		// Pass the grouped messages and unique senders to the view
-		$this->set(compact('uniqueSenders', 'groupedMessages'));
+		
+		// If it's an AJAX request, return only the unique senders
+		if ($this->request->is('ajax')) {
+		
+			$this->set(compact('uniqueSenders'));
+		
+			$this->render('/Elements/message_list', 'ajax');
+		} else {
+			// Pass the grouped messages and unique senders to the view
+			$this->set(compact('uniqueSenders', 'groupedMessages'));
+		}
 	}
+
+	// New method to handle loading more users/messages
+	public function loadMoreUsers()
+{	
+	
+    $this->autoRender = false; // Prevent automatic rendering d
+    if ($this->request->is('ajax')) {
+        // Call the index method to load more messages
+      
+		$this->index();
+        // Render the message details element
+        $this->render('/Elements/message_list', 'ajax');
+    }
+}
 
 	public function add()
 	{
@@ -276,90 +298,113 @@ class MessagesController extends AppController
 
 
 	public function view($conversationId)
-{
-    $limit = 5; // Limit to 5 messages per batch
-    $page = $this->request->query('page') ?: 1; // Default to page 1
-   
-    // Fetch messages with offset and limit
-    $messages = $this->Message->find('all', [
-        'conditions' => ['Message.conversationId' => $conversationId],
-        'contain' => ['Sender', 'Receiver'],
-        'order' => ['Message.createdAt' => 'DESC'],
-        'limit' => $limit,
-    ]);
+	{
+		$limit = 5; // Limit to 5 messages per batch
+		$page = $this->request->query('page') ?: 1; // Default to page 1
+		$noMessagesFound = false;
 
-    // Count total messages to determine if there are more to load
-    $totalMessages = $this->Message->find('count', [
-        'conditions' => ['Message.conversationId' => $conversationId]
-    ]);
+		// Fetch messages with offset and limit
+		$messages = $this->Message->find('all', [
+			'conditions' => ['Message.conversationId' => $conversationId],
+			'contain' => ['Sender', 'Receiver'],
+			'order' => ['Message.createdAt' => 'DESC'],
+			'limit' => $limit,
+		]);
 
-    // Check if more messages are available to load
-    $hasMore = $limit < $totalMessages;
-    $this->set(compact('messages', 'conversationId', 'hasMore'));
+		// Count total messages to determine if there are more to load
+		$totalMessages = $this->Message->find('count', [
+			'conditions' => ['Message.conversationId' => $conversationId]
+		]);
 
-    if ($this->request->is('ajax')) {
-        // Render the next batch of messages without layout for AJAX request
-        $this->render('Elements/conversations'); // Ensure no layout is included
-    }
-}
+		// Check if more messages are available to load
+		$hasMore = $limit < $totalMessages;
 
-public function loadMoreMessages($conversationId) {
-	$limit = 5; // Limit to 5 messages per batch
-    $page = $this->request->query('page') ?: 1; // Default to page 1
-    $offset = ($page - 1) * $limit;
+		$this->set(compact('messages', 'conversationId', 'hasMore', 'noMessagesFound'));
 
-    // Fetch messages with offset and limit
-    $messages = $this->Message->find('all', [
-        'conditions' => ['Message.conversationId' => $conversationId],
-        'contain' => ['Sender', 'Receiver'],
-        'order' => ['Message.createdAt' => 'DESC'],
-        'limit' => $limit,
-        'offset' => $offset
-    ]);
+		if ($this->request->is('ajax')) {
+			// Render the next batch of messages without layout for AJAX request
+			$this->render('Elements/conversations');
+		}
+	}
 
-    // Count total messages to determine if there are more to load
-    $totalMessages = $this->Message->find('count', [
-        'conditions' => ['Message.conversationId' => $conversationId]
-    ]);
+	public function searchMessages($conversationId)
+	{
+		$this->autoRender = false; // Prevent CakePHP from rendering a default view
 
-    // Check if more messages are available to load
-    $hasMore = ($offset + $limit) < $totalMessages;
+		// Get the search query from the request
+		$searchQuery = $this->request->query('body');
 
-    $this->set(compact('messages', 'conversationId', 'hasMore'));
+		// Get the current page from the request, default to 1
+		$page = $this->request->query('page') ?: 1;
+		$limit = 5; // Limit to 5 messages per batch
 
-    if ($this->request->is('ajax')) {
-        // Render the next batch of messages without layout for AJAX request
-        $this->render('Elements/conversations'); // Ensure no layout is included
-    }
-}
+		// Define base conditions to fetch messages for the conversation
+		$conditions = ['Message.conversationId' => $conversationId];
 
+		// If search query is not empty, add search condition
+		if (!empty($searchQuery)) {
+			$conditions['Message.body LIKE'] = '%' . $searchQuery . '%';
+		}
 
+		// Perform the search with pagination
+		$messages = $this->Message->find('all', [
+			'conditions' => $conditions,
+			'contain' => ['Sender', 'Receiver'],
+			'order' => ['Message.createdAt' => 'DESC'],
+			'limit' => $limit,
+			'page' => $page // Add pagination parameters
+		]);
 
+		// Set the variable for no messages found
+		$noMessagesFound = empty($messages) && !empty($searchQuery);
 
-	// public function loadMoreMessages() {
-	// 	if ($this->request->is('ajax')) {
-	// 		$conversationId = $this->request->query('conversationId');
-	// 		$page = $this->request->query('page');
+		// Pass the messages and noMessagesFound variable to the element
+		if ($this->request->is('ajax')) {
+			$this->set(compact('messages', 'noMessagesFound'));
+			$this->render('/Elements/conversations', 'ajax');
+		} else {
+			throw new NotFoundException(); // Handle non-AJAX request
+		}
+	}
 
-	// 		$messages = $this->Message->find('all', [
-	// 			'conditions' => ['Message.conversationId' => $conversationId],
-	// 			'contain' => ['Sender'],
-	// 			'order' => ['Message.createdAt' => 'DESC'],
-	// 			'limit' => 5,
-	// 			'page' => $page
-	// 		]);
+	public function loadMoreMessages($conversationId)
+	{
 
-	// 		$this->response->type('json');
-	// 		$this->response->body(json_encode([
-	// 			'messages' => $messages,
-	// 			'hasMore' => count($messages) === 5 // Determine if there are more messages
-	// 		]));
-	// 	} else {
-	// 		// Handle non-AJAX request
-	// 		$this->Flash->error(__('Invalid request.'));
-	// 		return $this->redirect(['action' => 'index']);
-	// 	}
-	// }
+		$limit = 5; // Limit to 5 messages per batch
+		$page = $this->request->query('page') ?: 1; // Default to page 1
+		$offset = ($page - 1) * $limit;
+		$noMessagesFound = false;
+
+		// Fetch messages with offset and limit
+		$messages = $this->Message->find('all', [
+			'conditions' => ['Message.conversationId' => $conversationId],
+			'contain' => ['Sender', 'Receiver'],
+			'order' => ['Message.createdAt' => 'DESC'],
+			'limit' => $limit,
+			'offset' => $offset
+		]);
+
+		// Count total messages to determine if there are more to load
+		$totalMessages = $this->Message->find('count', [
+			'conditions' => ['Message.conversationId' => $conversationId]
+		]);
+
+		// Check if more messages are available to load
+		$hasMore = ($offset + $limit) < $totalMessages;
+
+		// Set variables for the view
+		$this->set(compact('messages', 'conversationId', 'hasMore', 'noMessagesFound'));
+
+		// Check if it's an AJAX request
+		if ($this->request->is('ajax')) {
+			// Render the 'Elements/conversations' element without layout
+			$this->render('/Elements/conversations', 'ajax');
+		} else {
+			// Handle non-AJAX request (optional)
+			throw new NotFoundException();
+		}
+	}
+
 
 
 	// Delete Whole Conversation

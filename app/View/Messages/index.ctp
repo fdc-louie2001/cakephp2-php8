@@ -2,9 +2,8 @@
 
 <!-- Navigation with Logout Button -->
 
-
 <!-- Main Content -->
-<div class="container inbox mt-3">
+<div class="container  mt-3">
     <div class="d-flex justify-content-between align-items-center py-2">
         <h5 class="mb-0">Message History</h5>
         <?php echo $this->Html->link(
@@ -14,44 +13,41 @@
         ); ?>
     </div>
 
-    <div class="list-group mt-3 pb-2">
-        <?php if (empty($uniqueSenders)) : ?>
-            <p>No Conversations</p>
-        <?php else : ?>
-            <?php foreach ($uniqueSenders as $sender) : ?>
-
-                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-
-                    <div class="d-flex align-items-center w-100"
-                        onclick="window.location='<?php echo $this->Html->url(['controller' => 'messages', 'action' => 'view', $sender['conversationId']]); ?>'">
-
-                        <?php echo $this->Html->image($sender['profilePic'], ['width' => '50', 'height' => '50', 'class' => 'avatar']); ?>
-                        <div class="ml-2">
-                            <h6 class="mb-1"><?php echo h($sender['name']); ?></h6>
-                            <p class="mb-0 text-muted message-preview">
-                                <?php echo h($sender['lastMessage']); // Display the last message body 
-                                ?>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <small class="text-muted">
-                            <?php echo h(date('h:i A', strtotime($sender['lastMessageTime'])));
-                            ?>
-                        </small>
-                        <?php echo $this->Form->postLink(
-                            __('Delete'),
-                            ['controller' => 'messages', 'action' => 'destroy', $sender['conversationId']],
-                            [
-                                'class' => 'btn btn-danger ml-2',
-                                'confirm' => 'Are you sure you want to delete this conversation?'
-                            ]
-                        ); ?>
-                    </div>
-                </div>
-
-            <?php endforeach; ?>
-        <?php endif; ?>
+    <div id="messageList inbox">
+        <?php echo $this->element('message_list', ['uniqueSenders' => $uniqueSenders]); ?>
     </div>
+
+    <button id="seeMore" class="btn btn-secondary mt-3" style="display: <?php echo count($uniqueSenders) >= 5 ? 'block' : 'none'; ?>;">
+        See More
+    </button>
 </div>
+
+<script>
+$(document).ready(function() {
+    let offset = 5; // Starting offset for loading more users
+
+    $('#seeMore').on('click', function() {
+        $.ajax({
+            url: '<?php echo $this->Html->url(['controller' => 'messages', 'action' => 'loadMoreUsers']); ?>',
+            type: 'GET',
+            data: { offset: offset },
+            dataType: 'html',
+            success: function(data) {
+                console.log(data);
+                // Append the new messages to the list
+                $('#message-container').append(data);
+                offset += 5; 
+
+              
+                if ($(data).find('.list-group-item').length < 5) {
+                    $('#seeMore').hide();
+                }
+            },
+            error: function() {
+                alert('Could not load more messages. Please try again.');
+            }
+        });
+    });
+});
+</script>
+

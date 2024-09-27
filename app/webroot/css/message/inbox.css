@@ -1,20 +1,12 @@
-body {
-    background-color: #f8f9fa; /* Light background for contrast */
-    margin: 0; /* Remove default margin */
-    height: 100vh; /* Full viewport height */
-    display: flex; /* Use flexbox to center content */
-    flex-direction: column; /* Stack items vertically */
-}
 
 .inbox {
+    border: 5px solid black; 
     max-height: 500px; /* Set a maximum height */
     overflow-y: auto; /* Enable vertical scrolling */
-    padding: 20px; /* Padding around the inbox */
     background: rgb(240, 242, 245); /* Slightly darker background */
     border-radius: 8px; /* Rounded corners */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow */
 }
-
 /* Styling for individual message items */
 .list-group-item {
     transition: background-color 0.3s; /* Smooth transition for background change */
@@ -35,6 +27,8 @@ a {
     text-decoration: none; /* Remove underline from all links */
     color: inherit; /* Inherit color from parent */
 }
+
+
 
 /* Message preview text styling */
 .message-preview {

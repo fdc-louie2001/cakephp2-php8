@@ -43,7 +43,7 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 	echo $this->fetch('css');
 	echo $this->fetch('script');
 	?>
-	
+
 
 	<style>
 
@@ -53,21 +53,47 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 
 <body>
 	<div id="container">
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <?php echo $this->Html->link(
-        __(AuthComponent::user('name')),
-        ['controller' => 'users', 'action' => 'view', AuthComponent::user('id')],
-        ['class' => 'navbar-brand']
-    ); ?>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-between">
+			<div>
+				<?php echo $this->Html->link(
+					__('Home'),
+					['controller' => 'messages', 'action' => 'index', 'home'],
+					['class' => 'navbar-brand']
+				); ?>
+				
+			</div>
+			<div class="d-flex">
+			<?php echo $this->Html->link(
+				__(AuthComponent::user('name')),
+				['controller' => 'users', 'action' => 'view', AuthComponent::user('id')],
+				['class' => 'navbar-brand']
+			); ?>
 
-    <div class="logout-button ml-3">
-        <?php echo $this->Html->link(
-            __('Logout'),
-            ['controller' => 'users', 'action' => 'logout'],
-            ['class' => 'btn btn-danger']
-        ); ?>
-    </div>
-</nav>
+			<div class="logout-button ml-3">
+				<?php if (AuthComponent::user()) {
+					echo $this->Html->link(
+						__('Logout'),
+						['controller' => 'users', 'action' => 'logout'],
+						['class' => 'btn btn-danger']
+					);
+				}
+				else {
+					echo $this->Html->link(
+						__('Login '),
+						['controller' => 'users', 'action' => 'login'],
+						['class' => 'btn btn-primary mr-2']
+					);
+				
+					echo $this->Html->link(
+						__('Register '),
+						['controller' => 'users', 'action' => 'add'],
+						['class' => 'btn btn-silver']
+					);
+				}
+				?>
+			</div>
+			</div>
+		</nav>
 		<div id="content">
 
 			<?php echo $this->Flash->render(); ?>

@@ -2,6 +2,7 @@
 
 <!-- Main Content -->
 <div class="container-sm">
+
     <p class="font-weight-bold text-uppercase">
         <?php
         // Check if messages are available and get the sender's name
@@ -44,15 +45,29 @@
         <?php echo $this->Form->button(__('Send Message'), ['class' => 'btn btn-primary float-right']); ?>
         <?php echo $this->Form->end(); ?>
     </div>
+    <div class="list-group container-sm ">
+        <div class="mt-3">
+            <!-- Search input field -->
+            <?php echo $this->Form->input(null, [
+                'type' => 'text',
+                'id' => 'search-input',
+                'class' => 'form-control',
+                'placeholder' => 'Search for a message...',
+                'label' => false
+            ]); ?>
+        </div>
 
-    <div class="list-group container-sm inbox" id="messageList">
-        <?php echo $this->element('conversations', ['messages' => $messages]); ?>
+        <!-- Messages will be rendered here -->
+        <div class="inbox" id="messageList">
+            <?php echo $this->element('conversations', ['messages' => $messages]); ?>
+        </div>
     </div>
 
     <!-- Load More Button -->
     <?php if ($hasMore): ?>
         <button id="load-more" type="button" class="btn btn-primary mt-3">Load More</button>
     <?php endif; ?>
+
 
 </div>
 
@@ -62,9 +77,10 @@
 
         // Load more messages when the "Load More" button is clicked
         $('#load-more').on('click', function() {
+            console.log('Load more messages');
             currentPage++;
             $.ajax({
-                url: '<?php echo $this->Html->url(['action' => 'view', $conversationId]); ?>',
+                url: '<?php echo $this->Html->url(['action' => 'loadMoreMessages', $conversationId]); ?>',
                 data: {
                     page: currentPage
                 },
@@ -77,7 +93,8 @@
                         $('#load-more').hide();
                     }
                 },
-                error: function() {
+                error: function(response) {
+                    console.log("Error: ", response); // Log the response to see what is being returned
                     alert('An error occurred while loading more messages.');
                 }
             });
@@ -107,6 +124,30 @@
                 }
             });
         });
+
+        // Search input keyup event to trigger AJAX search
+        $('#search-input').on('keyup', function() {
+            var searchQuery = $(this).val();
+            var currentPage = 1; // Reset to page 1 for a new search
+
+            $.ajax({
+                url: '<?php echo $this->Html->url(['action' => 'searchMessages', $conversationId]); ?>',
+                type: 'GET',
+                data: {
+                    body: searchQuery, // Send search query as parameter
+                    page: currentPage // Include current page in the request
+                },
+                success: function(response) {
+                    // Update the message list with the search results
+                    $('#messageList').html(response);
+                },
+                error: function(response) {
+                    console.log("Error: ", response); // Log the response to see what is being returned
+                    alert('An error occurred while searching messages.');
+                }
+            });
+        });
+
     });
 </script>
 

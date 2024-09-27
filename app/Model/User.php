@@ -16,7 +16,6 @@ class User extends AppModel {
 			'notBlank' => array(
 				'rule' => array('notBlank'),
 				'message' => 'Name required',
-				'required' => true,
 				'allowEmpty' => false,
 				'last' => false,
 			),
